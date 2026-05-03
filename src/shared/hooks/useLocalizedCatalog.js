@@ -1,5 +1,6 @@
 import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { fetchCatalogBundle } from "../../core/api/backendApi.js";
+import { getLocalizedBlogPosts, getLocalizedCategories, getLocalizedProducts } from "../data/catalog.js";
 import { usePreferences } from "../i18n/AppPreferences.jsx";
 
 const BackendDataContext = createContext(null);
@@ -20,24 +21,26 @@ export function BackendDataProvider({ children }) {
 
     return fetchCatalogBundle(language, signal)
       .then((data) => {
+        const fallbackData = getFallbackCatalog(language);
         setState({
-          categories: data.categories,
+          categories: data.categories.length ? data.categories : fallbackData.categories,
           brands: data.brands,
-          products: data.products,
-          blogPosts: data.blogPosts,
+          products: data.products.length ? data.products : fallbackData.products,
+          blogPosts: data.blogPosts.length ? data.blogPosts : fallbackData.blogPosts,
           loading: false,
           error: null
         });
       })
       .catch((error) => {
         if (error.name === "AbortError") return;
+        const fallbackData = getFallbackCatalog(language);
         setState({
-          categories: [],
+          categories: fallbackData.categories,
           brands: [],
-          products: [],
-          blogPosts: [],
+          products: fallbackData.products,
+          blogPosts: fallbackData.blogPosts,
           loading: false,
-          error
+          error: null
         });
       });
   }, [language]);
@@ -57,6 +60,14 @@ export function BackendDataProvider({ children }) {
   );
 
   return createElement(BackendDataContext.Provider, { value }, children);
+}
+
+function getFallbackCatalog(language) {
+  return {
+    categories: getLocalizedCategories(language),
+    products: getLocalizedProducts(language),
+    blogPosts: getLocalizedBlogPosts(language)
+  };
 }
 
 export function useLocalizedCatalog() {
