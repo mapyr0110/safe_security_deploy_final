@@ -1,0 +1,278 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: 247 247 244;
+  --color-surface: 255 255 255;
+  --color-surface-alt: 238 237 232;
+  --color-ink: 17 17 17;
+  --color-text: 24 24 24;
+  --color-muted: 111 108 102;
+  --color-border: 222 219 211;
+  --color-accent: 180 83 9;
+  --color-contrast: 15 15 15;
+  --color-contrast-text: 255 255 255;
+  --color-shadow: 0 0 0;
+}
+
+:root[data-theme="dark"] {
+  --color-bg: 17 18 20;
+  --color-surface: 27 28 31;
+  --color-surface-alt: 36 37 41;
+  --color-ink: 245 241 232;
+  --color-text: 242 239 232;
+  --color-muted: 171 165 154;
+  --color-border: 66 64 59;
+  --color-accent: 230 145 64;
+  --color-contrast: 245 241 232;
+  --color-contrast-text: 17 18 20;
+  --color-shadow: 0 0 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: rgb(var(--color-bg));
+  color: rgb(var(--color-text));
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 400;
+  line-height: 1.65;
+  text-rendering: geometricPrecision;
+}
+
+button,
+a,
+select {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+}
+
+.label {
+  color: rgb(var(--color-muted));
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-reveal="scale-in"] {
+  transform: scale(0.96);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.clip-title .word {
+  display: block;
+  overflow: hidden;
+}
+
+.clip-title .inner {
+  display: block;
+  transform: translateY(110%);
+  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.is-visible .clip-title .inner,
+.clip-title.is-visible .inner {
+  transform: translateY(0);
+}
+
+.hero-camera {
+  position: relative;
+  display: grid;
+  min-height: 560px;
+  overflow: hidden;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 8px;
+  background: rgb(var(--color-surface-alt));
+}
+
+.hero-product-frame {
+  position: absolute;
+  inset: 44px 44px 92px;
+  border-radius: 8px;
+}
+
+.hero-camera span {
+  position: absolute;
+  bottom: 34px;
+  left: 34px;
+  z-index: 2;
+  color: rgb(var(--color-muted));
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hero-slide-copy {
+  animation: hero-copy-in 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-slide-media {
+  animation: hero-media-in 0.58s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes hero-copy-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-media-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.floating-field {
+  position: relative;
+  display: block;
+}
+
+.floating-field input,
+.floating-field textarea {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid rgb(var(--color-border));
+  background: transparent;
+  padding: 18px 0 10px;
+  color: rgb(var(--color-text));
+  outline: 0;
+}
+
+.floating-field textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.floating-field span {
+  position: absolute;
+  left: 0;
+  top: 17px;
+  color: rgb(var(--color-muted));
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+.floating-field input:focus + span,
+.floating-field input:not(:placeholder-shown) + span,
+.floating-field textarea:focus + span,
+.floating-field textarea:not(:placeholder-shown) + span {
+  top: -4px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.floating-field.dark input {
+  border-color: rgb(var(--color-contrast-text) / 0.28);
+  color: rgb(var(--color-contrast-text));
+}
+
+.floating-field.dark span {
+  color: rgb(var(--color-contrast-text) / 0.58);
+}
+
+.marquee {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+
+.marquee-group {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.marquee span {
+  padding-right: 64px;
+  color: rgb(var(--color-muted));
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 24px;
+  letter-spacing: 0.08em;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-modal {
+  animation: modal 0.25s ease both;
+}
+
+@keyframes modal {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.rounded-2xl,
+.rounded-xl,
+.rounded-\[24px\] {
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .hero-camera {
+    min-height: 440px;
+  }
+
+  .hero-product-frame {
+    inset: 24px 24px 82px;
+  }
+}
+
+@media (max-width: 480px) {
+  section {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
