@@ -41,6 +41,28 @@ const PRODUCT_IMAGE_BY_KEY = {
   "DS-1272ZJ-110": "bracket.jpeg"
 };
 
+const PRODUCT_IMAGE_RULES = [
+  [/2cd1041g2|ipcam1/, "ipcam1.jpeg"],
+  [/hfw1230tc1|ipcam2/, "ipcam2.jpg"],
+  [/i650m|ipcam3/, "ipcam3.jpeg"],
+  [/uvc-ai-pro|unifi protect ai|ipcam4/, "ipcam4.webp"],
+  [/ds-n308|ipreg1/, "ipreg1.jpg"],
+  [/96128ni|ipreg2/, "ipreg2.webp"],
+  [/7716ni|ipreg3/, "ipreg3.webp"],
+  [/96256ni|ipreg4/, "ipreg4.webp"],
+  [/2ce10df0t|hdcam1/, "hdcam1.webp"],
+  [/2ce10df3t|hdcam2/, "hdcam2.webp"],
+  [/2ce10df8t|hdcam3/, "hdcam3.webp"],
+  [/2ce10hft|hdcam4/, "hdcam4.webp"],
+  [/7204huhi|hdreg1/, "hdreg1.webp"],
+  [/7208hqhi-m1|hdreg2/, "hdreg2.webp"],
+  [/7208hqhi-m2|hdreg3/, "hdreg3.webp"],
+  [/7116hghi|hdreg4/, "hdreg4.webp"],
+  [/3e0318p|3e0109p|poe switch|net1|net2/, "switchds-3e031.png"],
+  [/kv6113|door station|intercom1/, "doorstation.jpg"],
+  [/1272zj|bracket|accessory1/, "bracket.jpeg"]
+];
+
 export function publicAssetPath(path) {
   const base = import.meta.env.BASE_URL || "/";
   return `${base.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
@@ -48,6 +70,21 @@ export function publicAssetPath(path) {
 
 export function resolveStaticProductImage(product) {
   const keys = [product?.image, product?.slug, product?.id, product?.article].filter(Boolean).map(String);
-  const filename = keys.map((key) => PRODUCT_IMAGE_BY_KEY[key]).find(Boolean);
+  const exactFilename = keys.map((key) => PRODUCT_IMAGE_BY_KEY[key]).find(Boolean);
+  const haystack = [
+    product?.image,
+    product?.slug,
+    product?.id,
+    product?.article,
+    product?.name,
+    product?.main_image?.url,
+    product?.images?.find((image) => image.is_main)?.url,
+    product?.images?.[0]?.url
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const ruleFilename = PRODUCT_IMAGE_RULES.find(([pattern]) => pattern.test(haystack))?.[1];
+  const filename = exactFilename || ruleFilename;
   return filename ? publicAssetPath(`images/${filename}`) : "";
 }
