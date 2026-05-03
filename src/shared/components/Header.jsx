@@ -79,7 +79,6 @@ export function Header() {
               ))}
             </div>
           </div>
-          <NavLink to="/blog" className={navClass} onClick={closeMenu}>{t("nav.blog")}</NavLink>
           <NavLink to="/contact" className={navClass} onClick={closeMenu}>{t("nav.contacts")}</NavLink>
           <div className="flex w-full items-center gap-3 md:hidden">
             <PreferenceControls compact />

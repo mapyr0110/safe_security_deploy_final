@@ -63,9 +63,19 @@ export function BackendDataProvider({ children }) {
 }
 
 function getFallbackCatalog(language) {
+  const categories = getLocalizedCategories(language).map((category) => ({
+    ...category,
+    name: category.name || category.title || category.slug
+  }));
+  const categoryBySlug = Object.fromEntries(categories.map((category) => [category.slug, category]));
+
   return {
-    categories: getLocalizedCategories(language),
-    products: getLocalizedProducts(language),
+    categories,
+    products: getLocalizedProducts(language).map((product) => ({
+      ...product,
+      slug: product.slug || product.id || product.article,
+      category: typeof product.category === "string" ? categoryBySlug[product.category] : product.category
+    })),
     blogPosts: getLocalizedBlogPosts(language)
   };
 }
