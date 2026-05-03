@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import { resolveStaticProductImage } from "../data/staticAssets.js";
 
 export function ProductImage({ product, className = "", imageClassName = "object-contain p-6", fallbackClassName = "text-3xl" }) {
   const source = useMemo(() => {
+    const staticSource = resolveStaticProductImage(product);
+    if (staticSource) return staticSource;
+
     const rawSource = product?.main_image?.url || product?.images?.find((image) => image.is_main)?.url || product?.images?.[0]?.url || "";
     return normalizeImageSource(rawSource);
   }, [product]);

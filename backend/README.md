@@ -61,7 +61,8 @@ Admin foundations:
 - Catalog content uses `is_active` flags for safe removal from public APIs.
 - Categories, brands, products, and blog posts auto-generate unique slugs when the slug is left blank.
 - Catalog and blog content include audit fields: `created_by` and `updated_by`.
-- Product images and blog covers upload through `MEDIA_URL` / `MEDIA_ROOT`.
+- Product photos used by the public frontend live statically in `public/images`; the API provides product data and the frontend maps known products to those static assets.
+- Admin media uploads can still use `MEDIA_URL` / `MEDIA_ROOT` when enabled for backend-only content.
 - Admin list pages include CSV export actions for import/export workflows.
 
 ## Import Current Frontend Data
@@ -72,8 +73,8 @@ Use this command to copy the current React catalog/blog data into Django admin-m
 python backend/manage.py import_frontend_catalog
 ```
 
-It imports or updates categories, brands, products, product images, product specifications, and blog post cards.
-Original files in `public/images` are not deleted. Product images are copied into `backend/media/products`.
+It imports or updates categories, brands, products, product specifications, and blog post cards.
+Product photos stay in `public/images` and are not copied into `backend/media`.
 
 Product filters:
 

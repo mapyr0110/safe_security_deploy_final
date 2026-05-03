@@ -1,5 +1,4 @@
 import json
-import shutil
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -9,7 +8,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from blog.models import BlogPost
-from catalog.models import Brand, Category, Product, ProductImage, ProductSpecification
+from catalog.models import Brand, Category, Product, ProductSpecification
 
 
 LANGUAGES = ("en", "ru", "kk")
@@ -20,13 +19,6 @@ BRAND_RULES = (
     ("HiWatch", ("hiwatch", "ds-n")),
     ("Hikvision", ("hikvision", "ds-", "ids-")),
 )
-
-IMAGE_ALIASES = {
-    "net1": "switchds-3e031",
-    "net2": "switchds-3e031",
-    "intercom1": "doorstation",
-    "accessory1": "bracket",
-}
 
 PRODUCT_DEFAULTS = {
     "ip-cameras": {"camera_type": "bullet", "has_poe": True, "resolution": "4MP"},
@@ -57,18 +49,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         root = settings.BASE_DIR.parent
         source_path = root / "src" / "shared" / "data" / "catalog.js"
-        public_images = root / "public" / "images"
 
         if not source_path.exists():
             raise CommandError(f"Frontend catalog file not found: {source_path}")
-        if not public_images.exists():
-            raise CommandError(f"Public images folder not found: {public_images}")
 
         data = self._load_frontend_data(source_path)
         brands = self._import_brands(data)
         categories = self._import_categories(data)
-        image_lookup = self._build_image_lookup(public_images)
-        product_count = self._import_products(data, categories, brands, image_lookup)
+        product_count = self._import_products(data, categories, brands)
         blog_count = self._import_blog_posts(data)
 
         self.stdout.write(self.style.SUCCESS(f"Imported {len(categories)} categories, {len(brands)} brands, {product_count} products, and {blog_count} blog posts."))
@@ -135,7 +123,7 @@ class Command(BaseCommand):
             categories[slug] = category
         return categories
 
-    def _import_products(self, data, categories, brands, image_lookup):
+    def _import_products(self, data, categories, brands):
         imported = 0
         for index, product_en in enumerate(data["products"]["en"]):
             product_id = product_en["id"]
@@ -172,7 +160,6 @@ class Command(BaseCommand):
                     "stock_status": Product.StockStatus.ON_REQUEST,
                 },
             )
-            self._sync_main_image(product, product_en["image"], image_lookup)
             self._sync_specs(product, categories[category_slug], brands[brand_name])
             imported += 1
         return imported
@@ -203,25 +190,6 @@ class Command(BaseCommand):
             imported += 1
         return imported
 
-    def _sync_main_image(self, product, image_key, image_lookup):
-        source = image_lookup.get(image_key) or image_lookup.get(IMAGE_ALIASES.get(image_key, ""))
-        if source is None:
-            self.stdout.write(self.style.WARNING(f"No image found for {product.article} ({image_key})."))
-            return
-
-        target_dir = settings.MEDIA_ROOT / "products"
-        target_dir.mkdir(parents=True, exist_ok=True)
-        target = target_dir / f"{image_key}{source.suffix.lower()}"
-        shutil.copy2(source, target)
-
-        image = product.images.filter(is_main=True).first() or ProductImage(product=product, is_main=True)
-        image.image = f"products/{target.name}"
-        image.alt_en = product.name_en
-        image.alt_ru = product.name_ru
-        image.alt_kk = product.name_kk
-        image.sort_order = 0
-        image.save()
-
     def _sync_specs(self, product, category, brand):
         specs = [
             ("Article", "Артикул", "Артикул", product.article, product.article, product.article),
@@ -248,9 +216,6 @@ class Command(BaseCommand):
             obj.value_kk = spec[5]
             obj.sort_order = index
             obj.save()
-
-    def _build_image_lookup(self, public_images):
-        return {path.stem.lower(): path for path in public_images.iterdir() if path.is_file()}
 
     def _localized_by_slug(self, items_by_language, slug):
         return {language: next(item for item in items_by_language[language] if item["slug"] == slug) for language in LANGUAGES}
